@@ -1,0 +1,17 @@
+{
+  "name": "waffler-ai",
+  "version": "1.0.0",
+  "description": "Tries to predict the next words",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "npx tsc && node dist/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
