@@ -1,25 +1,61 @@
-export class WordMapping {
-    #word: string;
-    #nextWord: Map<string, number>;
+import { WordMapping } from "../src/wordmap.js";
 
-    constructor(word: string) {
-        this.#word = word;
-        this.#nextWord = new Map<string, number>();
+export class Analyser {
+    #wordMap: WordMapping[];
+    constructor() {
+        this.#wordMap = [];
     }
 
-    addFreq(word: string, amount: number = 0) {
-        this.#nextWord.set(word, amount)
+    getWords(text: string): Array<string> {
+        let wordArr = text.replace(/\n/g, " ").split(' ');
+        let uniqueWords: Array<string> = [];
+        
+        for (let word of wordArr) {
+            if (word === '' || uniqueWords.includes(word)) continue;
+            uniqueWords.push(word);
+        }
+        return uniqueWords;
     }
 
-    increaseFreq(word: string, amount: number = 1) {
-        const freq = this.#nextWord.get(word) || 0;
-        this.#nextWord.set(word, freq + amount);
+    getFreq(words: Array<string>): Map<string, number> {
+        let wordFreqMap: Map<string, number> = new Map();
+
+        for (let word of words) {
+            let wordFound = wordFreqMap.get(word);
+
+            if (wordFound) { wordFreqMap.set(word, wordFound += 1) }
+            else wordFreqMap.set(word, 1);
+        }
+        return wordFreqMap;
     }
 
-    display() {
-        console.log(`\x1b[32m${this.#word}\x1b[0m:`);
-        this.#nextWord.forEach((val, key) => {
-            console.log(`\t${key}: \x1b[33m${val}\x1b[0m`);
-        });
+    #nextWord(words: Array<string>, index: number) {
+        let newIndex = index + 1;
+        if (words.length - 1 < newIndex || newIndex < 0) return null;
+        return words[newIndex];
+    }
+
+    getNextWordFreq(words: Array<string>) {
+        let wordMappingArr: WordMapping[] = [];
+
+        for (let i = 0; i < words.length; i++) {
+            let wordMap = wordMappingArr.find(mapping => mapping.getWord() === words[i]);
+            if (wordMap) {
+                let nextWord = this.#nextWord(words, i);
+                if (nextWord !== null) wordMap.increaseFreq(nextWord);
+            } else {
+                let newMapping = new WordMapping(words[i]);
+                let nextWord = this.#nextWord(words, i);
+                if (nextWord !== null) newMapping.addFreq(nextWord);
+
+                wordMappingArr.push(newMapping);
+            }
+        }
+        return wordMappingArr;
+    }
+
+    input(text: string) {
+        let uniqueWords = this.getWords(text.toLowerCase());
+        this.getNextWordFreq(uniqueWords);
     }
 }
