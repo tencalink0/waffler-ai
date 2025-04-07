@@ -1,10 +1,21 @@
 import { WordMapping } from "./wordmap.js";
 import { Analyser } from "./analyse.js";
-import * as fs from 'fs';
+import { promises as fs } from 'fs';
 
-let word1 = new WordMapping("hello");
-word1.addFreq('friend');
-word1.increaseFreq('friend', 1);
+async function loadData() {
+    try {
+        const testData = await fs.readFile('./training_data/test_data.txt', 'utf8');
+        return testData;
+    } catch (err) {
+        // TODO: better fallback
+        console.log("Failed to load, using fallback...");
+        return "A cow likes to eat chicken";
+    }
+}
 
-let analyser = new Analyser();
-analyser.input("The crazy dog");
+loadData().then(testData => {
+    let analyser = new Analyser();
+    analyser.input(testData);
+    
+    analyser.begin("The", 100);
+});

@@ -2,8 +2,10 @@ import { WordMapping } from "../src/wordmap.js";
 
 export class Analyser {
     #wordMap: WordMapping[];
+    #maxTick?: number;
     constructor() {
         this.#wordMap = [];
+        this.#maxTick = undefined;
     }
 
     getWords(text: string): Array<string> {
@@ -35,7 +37,7 @@ export class Analyser {
         return words[newIndex];
     }
 
-    getNextWordFreq(words: Array<string>) {
+    getNextWordFreq(words: Array<string>): WordMapping[] {
         let wordMappingArr: WordMapping[] = [];
 
         for (let i = 0; i < words.length; i++) {
@@ -54,8 +56,64 @@ export class Analyser {
         return wordMappingArr;
     }
 
+    #cleanString(input: string) {
+        return input.toLowerCase().replace(/[^a-zA-Z\s\n\r\t]/g, '');
+    }
+
+
     input(text: string) {
-        let uniqueWords = this.getWords(text.toLowerCase());
-        this.getNextWordFreq(uniqueWords);
+        let uniqueWords = this.getWords(this.#cleanString(text));
+        this.#wordMap = this.getNextWordFreq(uniqueWords);
+    }
+
+    selectFromFreq(map: Map<string, number>) {
+        const mapArr = Array.from(map.entries());
+        const totalWeight = mapArr.reduce((sum, [_, weight]) => sum + weight, 0);
+        
+        let rand = Math.random() * totalWeight;
+
+        for (const [key, weight] of mapArr) {
+            if (rand < weight) {
+                return key;
+            }
+            rand -= weight;
+        }
+
+        return undefined;
+    }
+
+    getRandomWord(): string {
+        return this.#wordMap[
+            Math.floor(Math.random() * this.#wordMap.length)
+        ].getWord();
+    }
+
+    generateNextWord(word: string): string {
+        let wordMap = this.#wordMap.find(mapping => mapping.getWord() === word)?.clone();
+
+        let nextWord;
+        if (wordMap === undefined) {
+            nextWord = this.getRandomWord();
+        } else {
+            nextWord = this.selectFromFreq(wordMap.getMap());
+            if (nextWord === undefined) nextWord = this.getRandomWord();
+        }
+        return nextWord;
+    }
+
+    generate(word: string, delay: number, tick: number) {
+        console.log(word);
+        if (this.#maxTick == undefined || tick < this.#maxTick) {
+            const nextWord: string = this.generateNextWord(word);
+            setTimeout(() => this.generate(nextWord, delay, tick + 1), delay);
+        } else {
+            return;
+        }
+    }
+
+    begin(word: string, delay: number, maxWordCount?: number) {
+        word = word.toLowerCase();
+        this.#maxTick = maxWordCount;
+        this.generate(word, delay, 0);
     }
 }

@@ -20,6 +20,16 @@ export class WordMapping {
         return this.#word;
     }
 
+    getMap(): Map<string, number> {
+        return this.#nextWord;
+    }
+
+    clone(): WordMapping {
+        const newMapping = new WordMapping(this.#word);
+        newMapping.#nextWord = new Map(this.#nextWord);
+        return newMapping;
+    }
+
     display() {
         console.log(`\x1b[32m${this.#word}\x1b[0m:`);
         this.#nextWord.forEach((val, key) => {
