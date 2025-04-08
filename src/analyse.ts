@@ -10,13 +10,13 @@ export class Analyser {
 
     getWords(text: string): Array<string> {
         let wordArr = text.replace(/\n/g, " ").split(' ');
-        let uniqueWords: Array<string> = [];
+        let cleanWords: Array<string> = [];
         
         for (let word of wordArr) {
-            if (word === '' || uniqueWords.includes(word)) continue;
-            uniqueWords.push(word);
+            if (word === '') continue;
+            cleanWords.push(word);
         }
-        return uniqueWords;
+        return cleanWords;
     }
 
     getFreq(words: Array<string>): Map<string, number> {
@@ -62,8 +62,11 @@ export class Analyser {
 
 
     input(text: string) {
-        let uniqueWords = this.getWords(this.#cleanString(text));
-        this.#wordMap = this.getNextWordFreq(uniqueWords);
+        let wordArr = this.getWords(this.#cleanString(text));
+        this.#wordMap = this.getNextWordFreq(wordArr);
+        this.#wordMap.forEach((value) => {
+            value.display();
+        });
     }
 
     selectFromFreq(map: Map<string, number>) {

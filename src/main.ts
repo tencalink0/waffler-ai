@@ -20,8 +20,7 @@ async function loadData(textFileArr: Array<string>) {
 }
 
 loadData([
-    './training_data/test_data2.txt',
-    './training_data/test_data.txt'
+    './training_data/test_data2.txt'
 ]).then(testData => {
     let analyser = new Analyser();
     analyser.input(testData);
